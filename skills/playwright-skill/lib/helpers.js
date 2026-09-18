@@ -42,8 +42,10 @@ async function createContext(browser, options = {}) {
   const headers = { ...getExtraHeadersFromEnv(), ...options.extraHTTPHeaders };
   const contextOptions = {
     viewport: { width: 1280, height: 720 },
-    locale: 'en-US',
-    timezoneId: 'America/New_York',
+    // Follow the system locale and timezone unless pinned via environment;
+    // hardcoded values skew results on non-en-US systems.
+    ...(process.env.PW_LOCALE && { locale: process.env.PW_LOCALE }),
+    ...(process.env.PW_TIMEZONE && { timezoneId: process.env.PW_TIMEZONE }),
     ...options,
     ...(Object.keys(headers).length > 0 && { extraHTTPHeaders: headers }),
   };

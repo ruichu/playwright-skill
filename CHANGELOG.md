@@ -10,12 +10,25 @@
 - Added `run.js --detect-servers [port ...]` so dev-server detection no longer
   requires embedding the skill path in a `node -e` string, which corrupted
   Windows backslash paths.
+- Added `PW_LOCALE` and `PW_TIMEZONE` configuration to pin the browser context
+  locale and timezone.
 
 ### Changed
 
 - SKILL.md setup commands now use `npm --prefix "$SKILL_DIR" run setup` instead
   of `cd "$SKILL_DIR" && npm run setup`, so the command starts with `npm` and
   matches the `Bash(npm:*)` allowed-tools prefix without a permission prompt.
+- SKILL.md workflow notes that scripts must use CommonJS (`require`) because
+  the executor resolves modules through NODE_PATH, which ES module `import`
+  ignores, and that long visible-browser flows need a raised shell timeout
+  (up to 600000 ms) to avoid being killed mid-run.
+
+### Breaking changes
+
+- `createContext()` no longer hardcodes `locale: 'en-US'` and
+  `timezoneId: 'America/New_York'`; it follows the system locale and timezone
+  so sites render as they would for a local user. Set `PW_LOCALE` or
+  `PW_TIMEZONE` to pin them explicitly.
 
 ## [5.0.0] - 2026-08-11
 

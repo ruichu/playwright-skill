@@ -69,6 +69,26 @@ test('creates a configured screenshot directory', async () => {
   fs.rmSync(directory, { recursive: true, force: true });
 });
 
+test('createContext follows the system locale unless PW_LOCALE pins it', async () => {
+  const fakeBrowser = { newContext: async options => options };
+
+  const defaults = await helpers.createContext(fakeBrowser);
+  assert.equal(defaults.locale, undefined);
+  assert.equal(defaults.timezoneId, undefined);
+
+  const previous = { locale: process.env.PW_LOCALE, timezone: process.env.PW_TIMEZONE };
+  process.env.PW_LOCALE = 'zh-CN';
+  process.env.PW_TIMEZONE = 'Asia/Shanghai';
+  try {
+    const pinned = await helpers.createContext(fakeBrowser);
+    assert.equal(pinned.locale, 'zh-CN');
+    assert.equal(pinned.timezoneId, 'Asia/Shanghai');
+  } finally {
+    setOrDelete('PW_LOCALE', previous.locale);
+    setOrDelete('PW_TIMEZONE', previous.timezone);
+  }
+});
+
 function restoreEnv(previous) {
   setOrDelete('PW_HEADER_NAME', previous.name);
   setOrDelete('PW_HEADER_VALUE', previous.value);
