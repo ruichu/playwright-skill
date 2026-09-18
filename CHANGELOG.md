@@ -1,5 +1,22 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Added `@playwright/test` as a dependency so scripts can use `expect` assertions
+  directly. Inline `-e` snippets now provide `expect` in scope alongside
+  `chromium`, `firefox`, `webkit`, `devices`, and `helpers`.
+- Added `run.js --detect-servers [port ...]` so dev-server detection no longer
+  requires embedding the skill path in a `node -e` string, which corrupted
+  Windows backslash paths.
+
+### Changed
+
+- SKILL.md setup commands now use `npm --prefix "$SKILL_DIR" run setup` instead
+  of `cd "$SKILL_DIR" && npm run setup`, so the command starts with `npm` and
+  matches the `Bash(npm:*)` allowed-tools prefix without a permission prompt.
+
 ## [5.0.0] - 2026-08-11
 
 ### Changed

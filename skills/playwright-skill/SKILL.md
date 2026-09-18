@@ -39,11 +39,12 @@ Common installation paths:
 1. For localhost work, detect running servers before writing a URL:
 
    ```bash
-   node -e "require('$SKILL_DIR/lib/helpers').detectDevServers().then(s => console.log(JSON.stringify(s)))"
+   node "$SKILL_DIR/run.js" --detect-servers
    ```
 
-   Use the only result automatically. Ask which URL to use when there are
-   multiple results. Ask for a URL or offer to start a server when none exist.
+   Extra arguments add custom ports to the default scan. Use the only result
+   automatically. Ask which URL to use when there are multiple results. Ask
+   for a URL or offer to start a server when none exist.
 2. Write reusable scripts to `$TMP_DIR/playwright-test-*.js` unless the user
    asks to save them in the project. Use `PW_SCRIPT_DIR` to preserve scripts.
 3. Use a visible browser by default. Use `headless: true` only when requested
@@ -58,11 +59,13 @@ Common installation paths:
 Run once:
 
 ```bash
-cd "$SKILL_DIR" && npm run setup
+npm --prefix "$SKILL_DIR" run setup
 ```
 
-This installs Playwright and Chromium. Use `cd "$SKILL_DIR" && npm run
-install-all-browsers` when Firefox or WebKit is required.
+This installs Playwright and Chromium. Use `npm --prefix "$SKILL_DIR" run
+install-all-browsers` when Firefox or WebKit is required. Prefer `npm
+--prefix` over `cd ... && npm ...` so the command still starts with `npm`
+and matches the `Bash(npm:*)` entry in allowed-tools.
 
 ## Minimal example
 
@@ -99,8 +102,9 @@ For short one-off tasks, use inline execution:
 node "$SKILL_DIR/run.js" -e "const browser = await chromium.launch({headless: false}); try { const page = await browser.newPage(); await page.goto('https://example.com'); console.log(await page.title()); } finally { await browser.close(); }"
 ```
 
-The `-e` process exits as soon as the snippet settles, so close the browser
-inside the snippet.
+Inline snippets run with `chromium`, `firefox`, `webkit`, `devices`,
+`expect`, and `helpers` already in scope. The `-e` process exits as soon as
+the snippet settles, so close the browser inside the snippet.
 
 ## Current Playwright patterns
 
@@ -111,8 +115,10 @@ Prefer locators that describe what a user sees, in this order:
 3. `page.getByText()` for visible content
 4. `page.getByTestId()` when the application provides a test contract
 
-Actions auto-wait for actionability. Use web-first assertions or a locator's
-`waitFor()` instead of `waitForSelector()`, fixed sleeps, or `networkidle`.
+Actions auto-wait for actionability. Use web-first assertions from
+`@playwright/test` (`const { expect } = require('@playwright/test')`) or a
+locator's `waitFor()` instead of `waitForSelector()`, fixed sleeps, or
+`networkidle`.
 
 ```javascript
 await page.getByLabel('Email').fill('test@example.com');
