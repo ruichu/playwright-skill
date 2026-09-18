@@ -204,18 +204,24 @@ const browser = await helpers.launchBrowser('chromium');
 const context = await helpers.createContext(browser);
 const page = await context.newPage();
 await helpers.handleCookieBanner(page);
+await helpers.fillLabeledField(page, 'Email', 'user@example.com');
 await helpers.takeScreenshot(page, 'result');
 ```
 
 Available helpers are `allScopes`, `clickTextAnywhere`, `createContext`,
-`detectDevServers`, `getExtraHeadersFromEnv`, `handleCookieBanner`,
-`launchBrowser`, `sleep`, and `takeScreenshot`.
+`detectDevServers`, `fillLabeledField`, `getExtraHeadersFromEnv`,
+`handleCookieBanner`, `launchBrowser`, `sleep`, and `takeScreenshot`.
 
 - `allScopes(pageOrContext)`: every page and iframe as `{ page, frame, label }`.
-- `clickTextAnywhere(pageOrContext, text, { exact, timeout })`: clicks the
-  first visible text match across every page and iframe and returns `false`
-  when nothing matched. Use it when the frame is unknown; prefer a direct
-  locator when the frame is known.
+- `clickTextAnywhere(pageOrContext, text, { exact, timeout, attempts, gapMs })`:
+  clicks the first visible text match across every page and iframe and
+  returns `false` when nothing matched. Pass `attempts` to keep retrying
+  while a slow page renders. Use it when the frame is unknown; prefer a
+  direct locator when the frame is known.
+- `fillLabeledField(pageOrContext, labelText, value, { exact })`: fills the
+  text control associated with a visible label — native label association
+  first, then same-cell or next-in-document-order heuristics for
+  unassociated markup. Returns `false` when nothing was filled.
 - `sleep(ms)`: promise delay for pacing and backoff. Prefer locator waits
   over sleeps for readiness.
 

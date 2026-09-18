@@ -115,8 +115,20 @@ function allScopes(target) {
 // Best-effort click on visible text whose page or iframe is unknown: tries
 // role links, exact text, then generic containers, across every scope.
 // Returns false when nothing matched; prefer a direct locator on a known frame.
-async function clickTextAnywhere(target, text, { exact = true, timeout = 5000 } = {}) {
+// attempts > 1 keeps retrying while a slow page renders, sleeping gapMs between.
+async function clickTextAnywhere(target, text, { exact = true, timeout = 5000, attempts = 1, gapMs = 2000 } = {}) {
   const pattern = new RegExp(`^\\s*${escapeRegExp(text)}\\s*$`);
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    if (await clickTextInScopes(target, pattern, { text, exact, timeout })) return true;
+    if (attempt < attempts) {
+      console.log(`"${text}" not found (attempt ${attempt}/${attempts}); retrying`);
+      await sleep(gapMs);
+    }
+  }
+  return false;
+}
+
+async function clickTextInScopes(target, pattern, { text, exact, timeout }) {
   for (const { frame, label } of allScopes(target)) {
     const locators = [
       frame.getByRole('link', { name: pattern }),
@@ -134,6 +146,51 @@ async function clickTextAnywhere(target, text, { exact = true, timeout = 5000 } 
         // Try the next locator strategy or scope.
       }
     }
+  }
+  return false;
+}
+
+const UNFILLABLE_INPUT_TYPES = /hidden|button|submit|image|checkbox|radio|file/i;
+
+// Best-effort fill of the text control associated with a visible label:
+// native label association first, then same-table-cell or document-order
+// proximity for unassociated markup. Returns false when nothing was filled.
+async function fillLabeledField(target, labelText, value, { exact = false } = {}) {
+  for (const { frame, label } of allScopes(target)) {
+    if (await tryFill(frame.getByLabel(labelText, { exact }), value, labelText, label)) return true;
+
+    const texts = frame.getByText(labelText, { exact });
+    const count = await texts.count().catch(() => 0);
+    for (let i = 0; i < count; i++) {
+      const text = texts.nth(i);
+      if (!(await text.isVisible().catch(() => false))) continue;
+      const candidates = [
+        text.locator('xpath=ancestor-or-self::td[1]//input[1] | ancestor-or-self::td[1]//textarea[1]'),
+        text.locator('xpath=following::input[1] | following::textarea[1]'),
+      ];
+      for (const candidate of candidates) {
+        if (await tryFill(candidate, value, labelText, label)) return true;
+      }
+    }
+  }
+  return false;
+}
+
+async function tryFill(locator, value, labelText, scopeLabel) {
+  const count = Math.min(await locator.count().catch(() => 0), 3);
+  for (let i = 0; i < count; i++) {
+    const field = locator.nth(i);
+    const type = (await field.getAttribute('type').catch(() => null)) || 'text';
+    if (UNFILLABLE_INPUT_TYPES.test(type)) continue;
+    if (!(await field.isVisible().catch(() => false))) continue;
+    try {
+      await field.fill(value);
+    } catch {
+      // Read-only or otherwise unfillable; try the next candidate.
+      continue;
+    }
+    console.log(`Filled "${labelText}" -> ${JSON.stringify(await field.inputValue().catch(() => null))} in [${scopeLabel}]`);
+    return true;
   }
   return false;
 }
@@ -161,6 +218,7 @@ module.exports = {
   clickTextAnywhere,
   createContext,
   detectDevServers,
+  fillLabeledField,
   getExtraHeadersFromEnv,
   handleCookieBanner,
   launchBrowser,
