@@ -19,10 +19,23 @@ Claude 会根据你的浏览器自动化需求，自主决定何时使用这个 
 
 ## 安装
 
-> **本仓库是自用翻译 fork**：本节的所有安装命令（`npx skills add`、`/plugin marketplace add` 等）
-> 均指向**上游原版** [lackeyjb/playwright-skill](https://github.com/lackeyjb/playwright-skill)，
-> 安装的是未经翻译的英文原版。如需使用本 fork 的版本，请把命令中的仓库地址替换为
-> `ruichu/playwright-skill`，或直接复制本仓库的 `skills/playwright-skill/` 目录。
+> **本仓库是团队分发 fork**，`main` 上包含本仓库的增强（修复与 helpers，见
+> [CHANGELOG](CHANGELOG.md)）。同事直接从本 fork 安装：
+>
+> ```bash
+> npx skills add ruichu/playwright-skill --skill playwright-skill --global --yes
+> ```
+>
+> 或通过 Claude Code 插件系统：
+>
+> ```
+> /plugin marketplace add ruichu/playwright-skill
+> /plugin install playwright-skill@playwright-skill
+> ```
+>
+> 安装后在 skill 目录运行 `npm run setup`。本节其余命令均指向**上游原版**
+> [lackeyjb/playwright-skill](https://github.com/lackeyjb/playwright-skill)，
+> 安装的是未经本仓库增强的英文原版。
 
 本仓库包含一个标准的 Agent Skill 以及一个 Claude Code 插件封装。推荐的安装方式是 Vercel 的 [`skills`](https://github.com/vercel-labs/skills) CLI，它会把 skill 安装到受支持 Agent 的原生位置。
 
@@ -207,7 +220,7 @@ playwright-skill/
 ## 依赖
 
 - Node.js
-- Playwright（通过 `npm run setup` 安装）
+- Playwright 与 @playwright/test（通过 `npm run setup` 安装）
 - Chromium（通过 `npm run setup` 安装）
 
 ## 故障排除

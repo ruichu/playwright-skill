@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires Node.js 20+, npm, and network access on first setup to install Playwright and Chromium.
 metadata:
   author: lackeyjb
-  version: "5.0.0"
+  version: "5.1.0"
 allowed-tools: Bash(node:*) Bash(npm:*) Read Write
 ---
 
