@@ -1,8 +1,7 @@
 {
   "name": "playwright-skill",
   "owner": {
-    "name": "lackeyjb",
-    "email": "github@lackeyjb"
+    "name": "lackeyjb"
   },
   "metadata": {
     "description": "Playwright browser automation skill for coding agents",
