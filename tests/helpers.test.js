@@ -89,6 +89,57 @@ test('createContext follows the system locale unless PW_LOCALE pins it', async (
   }
 });
 
+test('allScopes walks pages and their iframes', () => {
+  const main = { url: () => 'http://a.example/' };
+  const embed = { url: () => 'http://b.example/embed' };
+  const pageOne = { url: () => 'http://a.example/', mainFrame: () => main, frames: () => [main] };
+  const pageTwo = { url: () => 'http://b.example/', mainFrame: () => main, frames: () => [main, embed] };
+
+  const scopes = helpers.allScopes({ pages: () => [pageOne, pageTwo] });
+
+  assert.deepEqual(scopes.map(scope => scope.label), [
+    'page http://a.example/',
+    'page http://b.example/',
+    'iframe http://b.example/embed',
+  ]);
+});
+
+test('clickTextAnywhere matches across scopes and escapes regex text', async () => {
+  const clicks = [];
+  const filterCalls = [];
+  // Playwright locators chain: filter() returns another locator.
+  const makeLocator = (count, onClick) => {
+    const stub = {
+      filter: options => { filterCalls.push(options); return stub; },
+      count: async () => count,
+      first: () => ({ click: onClick ?? (async () => {}) }),
+    };
+    return stub;
+  };
+  const noMatch = makeLocator(0);
+  const match = makeLocator(1, async () => clicks.push('clicked'));
+  const frameMatching = (url, matchingText) => ({
+    url: () => url,
+    getByRole: () => noMatch,
+    getByText: candidate => (candidate === matchingText ? match : noMatch),
+    locator: () => noMatch,
+  });
+
+  const main = frameMatching('http://a.example/', 'Sign in elsewhere');
+  const iframe = frameMatching('http://b.example/embed', 'Log in (v2)');
+  const page = { url: () => 'http://a.example/', mainFrame: () => main, frames: () => [main, iframe] };
+
+  assert.equal(await helpers.clickTextAnywhere(page, 'Log in (v2)'), true);
+  assert.deepEqual(clicks, ['clicked']);
+  assert.ok(
+    filterCalls.some(options => options.hasText?.source === '^\\s*Log in \\(v2\\)\\s*$'),
+    filterCalls.map(options => options.hasText?.source).join(' | ')
+  );
+
+  assert.equal(await helpers.clickTextAnywhere(page, 'Not present'), false);
+  assert.deepEqual(clicks, ['clicked']);
+});
+
 function restoreEnv(previous) {
   setOrDelete('PW_HEADER_NAME', previous.name);
   setOrDelete('PW_HEADER_VALUE', previous.value);

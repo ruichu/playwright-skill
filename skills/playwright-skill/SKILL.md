@@ -207,8 +207,18 @@ await helpers.handleCookieBanner(page);
 await helpers.takeScreenshot(page, 'result');
 ```
 
-Available helpers are `detectDevServers`, `getExtraHeadersFromEnv`,
-`launchBrowser`, `createContext`, `handleCookieBanner`, and `takeScreenshot`.
+Available helpers are `allScopes`, `clickTextAnywhere`, `createContext`,
+`detectDevServers`, `getExtraHeadersFromEnv`, `handleCookieBanner`,
+`launchBrowser`, `sleep`, and `takeScreenshot`.
+
+- `allScopes(pageOrContext)`: every page and iframe as `{ page, frame, label }`.
+- `clickTextAnywhere(pageOrContext, text, { exact, timeout })`: clicks the
+  first visible text match across every page and iframe and returns `false`
+  when nothing matched. Use it when the frame is unknown; prefer a direct
+  locator when the frame is known.
+- `sleep(ms)`: promise delay for pacing and backoff. Prefer locator waits
+  over sleeps for readiness.
+
 Use Playwright locators and assertions directly for actions, waits, extraction,
 authentication, tables, and retries.
 

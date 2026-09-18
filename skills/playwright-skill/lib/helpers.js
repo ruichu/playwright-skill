@@ -89,6 +89,55 @@ async function handleCookieBanner(page, timeout = 3000) {
   return false;
 }
 
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function sleep(milliseconds) {
+  return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+// Every page and iframe of a BrowserContext (or a single Page) as
+// { page, frame, label } targets, main frames before their iframes.
+function allScopes(target) {
+  const pages = typeof target.pages === 'function' ? target.pages() : [target];
+  const scopes = [];
+  for (const page of pages) {
+    const main = page.mainFrame();
+    scopes.push({ page, frame: main, label: `page ${page.url()}` });
+    for (const frame of page.frames()) {
+      if (frame !== main) scopes.push({ page, frame, label: `iframe ${frame.url()}` });
+    }
+  }
+  return scopes;
+}
+
+// Best-effort click on visible text whose page or iframe is unknown: tries
+// role links, exact text, then generic containers, across every scope.
+// Returns false when nothing matched; prefer a direct locator on a known frame.
+async function clickTextAnywhere(target, text, { exact = true, timeout = 5000 } = {}) {
+  const pattern = new RegExp(`^\\s*${escapeRegExp(text)}\\s*$`);
+  for (const { frame, label } of allScopes(target)) {
+    const locators = [
+      frame.getByRole('link', { name: pattern }),
+      frame.getByText(text, { exact }),
+      frame.locator('a, button, span, li, div, td').filter({ hasText: pattern }),
+    ];
+    for (const locator of locators) {
+      const visible = locator.filter({ visible: true });
+      if ((await visible.count().catch(() => 0)) === 0) continue;
+      try {
+        await visible.first().click({ timeout });
+        console.log(`Clicked "${text}" in [${label}]`);
+        return true;
+      } catch {
+        // Try the next locator strategy or scope.
+      }
+    }
+  }
+  return false;
+}
+
 async function detectDevServers(customPorts = []) {
   const ports = [...new Set([3000, 3001, 3002, 5173, 8080, 8000, 4200, 5000, 9000, 1234, ...customPorts])];
   const servers = [];
@@ -108,10 +157,13 @@ async function detectDevServers(customPorts = []) {
 }
 
 module.exports = {
+  allScopes,
+  clickTextAnywhere,
   createContext,
   detectDevServers,
   getExtraHeadersFromEnv,
   handleCookieBanner,
   launchBrowser,
+  sleep,
   takeScreenshot,
 };
