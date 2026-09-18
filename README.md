@@ -19,24 +19,6 @@ Claude 会根据你的浏览器自动化需求，自主决定何时使用这个 
 
 ## 安装
 
-> **本仓库是团队分发 fork**，`main` 上包含本仓库的增强（修复与 helpers，见
-> [CHANGELOG](CHANGELOG.md)）。同事直接从本 fork 安装：
->
-> ```bash
-> npx skills add ruichu/playwright-skill --skill playwright-skill --global --yes
-> ```
->
-> 或通过 Claude Code 插件系统：
->
-> ```
-> /plugin marketplace add ruichu/playwright-skill
-> /plugin install playwright-skill@playwright-skill
-> ```
->
-> 安装后在 skill 目录运行 `npm run setup`。本节其余命令均指向**上游原版**
-> [lackeyjb/playwright-skill](https://github.com/lackeyjb/playwright-skill)，
-> 安装的是未经本仓库增强的英文原版。
-
 本仓库包含一个标准的 Agent Skill 以及一个 Claude Code 插件封装。推荐的安装方式是 Vercel 的 [`skills`](https://github.com/vercel-labs/skills) CLI，它会把 skill 安装到受支持 Agent 的原生位置。
 
 ## 为什么选择这个 skill？
@@ -71,19 +53,19 @@ playwright-skill/              # Plugin root
 为你的用户全局安装：
 
 ```bash
-npx skills add lackeyjb/playwright-skill --skill playwright-skill --global --yes
+npx skills add ruichu/playwright-skill --skill playwright-skill --global --yes
 ```
 
 省略 `--global` 则只为当前项目安装：
 
 ```bash
-npx skills add lackeyjb/playwright-skill --skill playwright-skill --yes
+npx skills add ruichu/playwright-skill --skill playwright-skill --yes
 ```
 
 要针对特定的 Agent 安装，请添加 `--agent` 并跟上一个或多个 agent ID：
 
 ```bash
-npx skills add lackeyjb/playwright-skill --skill playwright-skill --agent claude-code cursor --global --yes
+npx skills add ruichu/playwright-skill --skill playwright-skill --agent claude-code cursor --global --yes
 ```
 
 安装完成后，在已安装的 skill 目录中运行 setup：
@@ -99,8 +81,8 @@ npm run setup
 通过 Claude Code 的插件系统安装，可获得自动更新和团队分发能力：
 
 ```bash
-# Add this repository as a marketplace
-/plugin marketplace add lackeyjb/playwright-skill
+# Add this fork as a marketplace
+/plugin marketplace add ruichu/playwright-skill
 
 # Install the plugin
 /plugin install playwright-skill@playwright-skill
@@ -124,7 +106,7 @@ Gemini CLI、OpenCode 及其他客户端支持。使用客户端文档中说明�
 
 ### 方式 4：下载 Release
 
-1. 从 [GitHub Releases](https://github.com/lackeyjb/playwright-skill/releases) 下载并解压最新的 release
+1. 从 [本仓库的 tags](https://github.com/ruichu/playwright-skill/tags) 下载并解压最新版本（例如 [fork-v5.1.0 源码包](https://github.com/ruichu/playwright-skill/archive/refs/tags/fork-v5.1.0.zip)）
 2. 只将 `skills/playwright-skill/` 文件夹复制到以下位置：
    - 全局：`~/.claude/skills/playwright-skill`
    - 项目：`/path/to/your/project/.claude/skills/playwright-skill`
@@ -254,7 +236,7 @@ playwright-skill/
 - [Claude Code 插件文档](https://docs.claude.com/en/docs/claude-code/plugins)
 - [插件市场](https://docs.claude.com/en/docs/claude-code/plugin-marketplaces)
 - [API_REFERENCE.md](skills/playwright-skill/API_REFERENCE.md) - 完整的 Playwright 文档
-- [GitHub Issues](https://github.com/lackeyjb/playwright-skill/issues)
+- [GitHub Issues](https://github.com/ruichu/playwright-skill/issues)
 
 ## 许可证
 
