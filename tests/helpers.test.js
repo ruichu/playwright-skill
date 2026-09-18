@@ -218,6 +218,29 @@ test('fillLabeledField falls back to nearby controls and skips unfillable fields
   assert.equal(await helpers.fillLabeledField(emptyPage, 'Nothing', 'x'), false);
 });
 
+test('waitTextAnywhere polls scopes until text appears', async () => {
+  let queries = 0;
+  const appearsLater = {
+    filter: () => appearsLater,
+    count: async () => { queries += 1; return queries >= 2 ? 1 : 0; },
+  };
+  const frame = { url: () => 'http://a.example/', getByText: () => appearsLater };
+  const page = { url: () => 'http://a.example/', mainFrame: () => frame, frames: () => [frame] };
+
+  assert.equal(await helpers.waitTextAnywhere(page, 'Saved', { timeout: 1000, pollMs: 1 }), true);
+  assert.equal(queries, 2);
+});
+
+test('waitTextAnywhere returns false after the timeout', async () => {
+  const never = { filter: () => never, count: async () => 0 };
+  const frame = { url: () => 'http://a.example/', getByText: () => never };
+  const page = { url: () => 'http://a.example/', mainFrame: () => frame, frames: () => [frame] };
+
+  const start = Date.now();
+  assert.equal(await helpers.waitTextAnywhere(page, 'Nothing', { timeout: 60, pollMs: 10 }), false);
+  assert.ok(Date.now() - start >= 50);
+});
+
 function restoreEnv(previous) {
   setOrDelete('PW_HEADER_NAME', previous.name);
   setOrDelete('PW_HEADER_VALUE', previous.value);

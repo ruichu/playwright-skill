@@ -195,6 +195,24 @@ async function tryFill(locator, value, labelText, scopeLabel) {
   return false;
 }
 
+// Waits until text becomes visible in any page or iframe of the target,
+// polling because the frame holding it may not exist yet. Use it to verify
+// outcomes after actions; returns false when the timeout elapses.
+async function waitTextAnywhere(target, text, { timeout = 10000, pollMs = 250, exact = false } = {}) {
+  const deadline = Date.now() + timeout;
+  while (true) {
+    for (const { frame, label } of allScopes(target)) {
+      const visible = frame.getByText(text, { exact }).filter({ visible: true });
+      if ((await visible.count().catch(() => 0)) > 0) {
+        console.log(`"${text}" appeared in [${label}]`);
+        return true;
+      }
+    }
+    if (Date.now() + pollMs > deadline) return false;
+    await sleep(pollMs);
+  }
+}
+
 async function detectDevServers(customPorts = []) {
   const ports = [...new Set([3000, 3001, 3002, 5173, 8080, 8000, 4200, 5000, 9000, 1234, ...customPorts])];
   const servers = [];
@@ -224,4 +242,5 @@ module.exports = {
   launchBrowser,
   sleep,
   takeScreenshot,
+  waitTextAnywhere,
 };

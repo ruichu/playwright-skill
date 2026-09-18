@@ -210,7 +210,8 @@ await helpers.takeScreenshot(page, 'result');
 
 Available helpers are `allScopes`, `clickTextAnywhere`, `createContext`,
 `detectDevServers`, `fillLabeledField`, `getExtraHeadersFromEnv`,
-`handleCookieBanner`, `launchBrowser`, `sleep`, and `takeScreenshot`.
+`handleCookieBanner`, `launchBrowser`, `sleep`, `takeScreenshot`, and
+`waitTextAnywhere`.
 
 - `allScopes(pageOrContext)`: every page and iframe as `{ page, frame, label }`.
 - `clickTextAnywhere(pageOrContext, text, { exact, timeout, attempts, gapMs })`:
@@ -224,6 +225,9 @@ Available helpers are `allScopes`, `clickTextAnywhere`, `createContext`,
   unassociated markup. Returns `false` when nothing was filled.
 - `sleep(ms)`: promise delay for pacing and backoff. Prefer locator waits
   over sleeps for readiness.
+- `waitTextAnywhere(pageOrContext, text, { timeout, pollMs, exact })`: waits
+  until the text is visible in any page or iframe and returns `false` on
+  timeout. Use it to verify outcomes after actions.
 
 Use Playwright locators and assertions directly for actions, waits, extraction,
 authentication, tables, and retries.

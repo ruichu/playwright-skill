@@ -12,14 +12,15 @@
   Windows backslash paths.
 - Added `PW_LOCALE` and `PW_TIMEZONE` configuration to pin the browser context
   locale and timezone.
-- Added `allScopes`, `clickTextAnywhere`, `fillLabeledField`, and `sleep`
-  helpers. `allScopes` enumerates every page and iframe of a page or context;
-  `clickTextAnywhere` clicks the first visible match for text across all of
-  them (regex-escaped text, `attempts`/`gapMs` retry while a page renders,
-  and `false` when nothing matched); `fillLabeledField` fills the text
-  control associated with a label via native label association or
-  same-cell/document-order proximity; `sleep` is a promise delay for pacing
-  and backoff.
+- Added `allScopes`, `clickTextAnywhere`, `fillLabeledField`, `sleep`, and
+  `waitTextAnywhere` helpers. `allScopes` enumerates every page and iframe
+  of a page or context; `clickTextAnywhere` clicks the first visible match
+  for text across all of them (regex-escaped text, `attempts`/`gapMs` retry
+  while a page renders, and `false` when nothing matched); `fillLabeledField`
+  fills the text control associated with a label via native label association
+  or same-cell/document-order proximity; `sleep` is a promise delay for
+  pacing and backoff; `waitTextAnywhere` polls every scope until text
+  becomes visible, for verifying outcomes after actions.
 
 ### Changed
 
