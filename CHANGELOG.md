@@ -22,6 +22,9 @@
   the executor resolves modules through NODE_PATH, which ES module `import`
   ignores, and that long visible-browser flows need a raised shell timeout
   (up to 600000 ms) to avoid being killed mid-run.
+- SKILL.md workflow now closes the verification loop: screenshot artifacts
+  must be read back (the Read tool renders PNGs) and visually confirmed
+  before success is reported.
 
 ### Breaking changes
 

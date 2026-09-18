@@ -57,8 +57,9 @@ Common installation paths:
    shell tool's default timeout (120 s in Claude Code); request a larger
    timeout on the call, up to 600000 ms, so the run is not killed with an
    orphaned browser.
-6. Report actions, failures, and artifact paths. Do not claim success without
-   checking the resulting page.
+6. Verify visually: open screenshot artifacts with the Read tool (it renders
+   PNGs) and check the page before reporting success — console output alone
+   misses rendering problems. Report actions, failures, and artifact paths.
 
 ## Setup
 
